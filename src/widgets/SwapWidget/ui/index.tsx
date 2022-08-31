@@ -1,8 +1,10 @@
-import LIFI, { ChainId, ConfigUpdate, Route, RoutesRequest } from '@lifi/sdk';
+import { Execution, RoutesRequest } from '@lifi/sdk';
 import { LiFiWidgetDrawer, WidgetConfig } from '@lifi/widget';
 import { useEthers } from '@usedapp/core';
 import { formatEther, parseEther } from 'ethers/lib/utils';
 import { useMemo, useState } from 'react';
+import { FROM_CHAINID, TO_CHAINID } from '../../../shared/config/dapp.config';
+import { LIFI_CONFIG } from '../../../shared/config/lifi.config';
 import { useBalance } from '../../../shared/hooks/useBalance';
 import { switchChainHook } from '../lib/switchChainHook';
 
@@ -16,17 +18,14 @@ export const SwapWidget = () => {
   const fromBalance = useBalance(tokens.from);
   const toBalance = useBalance(tokens.to);
 
-  const fromChain = ChainId.GOR;
-  const toChain = ChainId.MUM;
+  const fromChain = FROM_CHAINID;
+  const toChain = TO_CHAINID;
 
   const make = async () => {
     const parsedAmount = parseEther(amount)?.toString();
     const signer = library?.getSigner(account);
     if (!signer || !account) return;
-    const config: ConfigUpdate = {
-      apiUrl: 'https://staging.li.quest/v1/',
-    };
-    const Lifi = new LIFI(config);
+
     const routesRequest: RoutesRequest = {
       fromChainId: fromChain,
       fromAmount: parsedAmount,
@@ -34,10 +33,9 @@ export const SwapWidget = () => {
       toChainId: toChain,
       toTokenAddress: tokens.to,
     };
-    const routesResponse = await Lifi.getRoutes(routesRequest);
+    const routesResponse = await LIFI_CONFIG.getRoutes(routesRequest);
     const routes = routesResponse.routes;
-    debugger;
-    const quote = await Lifi.getQuote({
+    const quote = await LIFI_CONFIG.getQuote({
       fromAddress: account,
       fromAmount: parsedAmount,
       fromChain,
@@ -46,14 +44,16 @@ export const SwapWidget = () => {
       toToken: tokens.to,
     });
 
-    const updateCallback = (updatedRoute: Route) => {
-      debugger;
-      console.log('Ping! Everytime a status update is made!');
-    };
-    const test = await Lifi.getChains();
-
-    const result = await Lifi.executeRoute(signer, routes[0], {
-      updateCallback,
+    await LIFI_CONFIG.executeRoute(signer, routes[0], {
+      updateCallback: (updatedRoute) => {
+        let lastExecution: Execution | undefined = undefined;
+        for (const step of updatedRoute.steps) {
+          if (step.execution) {
+            lastExecution = step.execution;
+          }
+        }
+        console.log(lastExecution);
+      },
       switchChainHook,
     });
   };
