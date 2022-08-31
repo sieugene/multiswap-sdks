@@ -18,7 +18,7 @@ export const Account: FC<{ children: React.ReactNode }> = ({ children }) => {
       {etherBalance && (
         <div className="balance">
           <br />
-          Balance:
+          Balance (ETH):
           <p className="bold">{formatEther(etherBalance)}</p>
         </div>
       )}
