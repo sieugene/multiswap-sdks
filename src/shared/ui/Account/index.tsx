@@ -11,17 +11,19 @@ export const Account: FC<{ children: React.ReactNode }> = ({ children }) => {
   }
   return (
     <>
-      <div>
-        <button onClick={() => activateBrowserWallet()}>Connect</button>
-      </div>
-      {account && <button onClick={() => deactivate()}>Disconnect</button>}
-      {etherBalance && (
-        <div className="balance">
-          <br />
-          Balance (ETH):
-          <p className="bold">{formatEther(etherBalance)}</p>
+      <div style={{ border: '1px solid black' }}>
+        <div>
+          <button onClick={() => activateBrowserWallet()}>Connect</button>
         </div>
-      )}
+        {account && <button onClick={() => deactivate()}>Disconnect</button>}
+        {etherBalance && (
+          <div className="balance">
+            <br />
+            Balance (ETH):
+            <p className="bold">{formatEther(etherBalance)}</p>
+          </div>
+        )}
+      </div>
       <div>{account && children}</div>
     </>
   );

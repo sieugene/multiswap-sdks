@@ -1,9 +1,10 @@
-import { BSCTestnet, Config, Rinkeby, Ropsten } from '@usedapp/core';
+import { Config, Goerli, Mumbai } from '@usedapp/core';
 
 export const dappConfig: Config = {
-  readOnlyChainId: BSCTestnet.chainId,
+  readOnlyChainId: Goerli.chainId,
   readOnlyUrls: {
-    [Ropsten.chainId]: 'https://rpc.ankr.com/eth_ropsten',
-    [Rinkeby.chainId]: 'https://rpc.ankr.com/eth_rinkeby',
+    [Goerli.chainId]:
+      'https://goerli.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161',
+    [Mumbai.chainId]: 'https://polygon-testnet.public.blastapi.io',
   },
 };
