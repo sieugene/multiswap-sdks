@@ -44,18 +44,31 @@ export const SwapWidget = () => {
       toToken: tokens.to,
     });
 
-    await LIFI_CONFIG.executeRoute(signer, routes[0], {
-      updateCallback: (updatedRoute) => {
-        let lastExecution: Execution | undefined = undefined;
-        for (const step of updatedRoute.steps) {
-          if (step.execution) {
-            lastExecution = step.execution;
-          }
-        }
-        console.log(lastExecution);
-      },
-      switchChainHook,
+    // @ts-ignore
+    const result = await signer.sendTransaction(quote.transactionRequest);
+    const trx = await result.wait();
+
+    const status = await LIFI_CONFIG.getStatus({
+      fromChain,
+      toChain,
+      txHash: trx.transactionHash,
+      bridge: quote.tool,
     });
+    console.log('status', { status });
+
+    // This don't work
+    // await LIFI_CONFIG.executeRoute(signer, routes[0], {
+    //   updateCallback: (updatedRoute) => {
+    //     let lastExecution: Execution | undefined = undefined;
+    //     for (const step of updatedRoute.steps) {
+    //       if (step.execution) {
+    //         lastExecution = step.execution;
+    //       }
+    //     }
+    //     console.log(lastExecution);
+    //   },
+    //   switchChainHook,
+    // });
   };
 
   const widgetConfig: WidgetConfig = useMemo(
