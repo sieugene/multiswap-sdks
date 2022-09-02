@@ -6,15 +6,25 @@ import { dappConfig } from '../../config/dapp.config';
 export const Account: FC<{ children: React.ReactNode }> = ({ children }) => {
   const { account, deactivate, chainId, activateBrowserWallet } = useEthers();
   const etherBalance = useEtherBalance(account);
-  if (!chainId || !dappConfig.readOnlyUrls?.[chainId]) {
-    return <p>Please use either BscTestnet or Rinkeby testnet.</p>;
-  }
+  const notAvailable = !chainId || !dappConfig.readOnlyUrls?.[chainId];
+
   return (
     <>
       <div style={{ border: '1px solid black' }}>
-        <div>
-          <button onClick={() => activateBrowserWallet()}>Connect</button>
-        </div>
+        {notAvailable && (
+          <p>
+            You chain not available, Available chains:{' '}
+            {Object.keys(dappConfig.readOnlyUrls!).map(
+              (value, index, array) =>
+                `${value} ${array.length - 1 !== index ? ',' : ''}`
+            )}
+          </p>
+        )}
+        {!account && (
+          <div>
+            <button onClick={() => activateBrowserWallet()}>Connect</button>
+          </div>
+        )}
         {account && <button onClick={() => deactivate()}>Disconnect</button>}
         {etherBalance && (
           <div className="balance">
@@ -24,7 +34,7 @@ export const Account: FC<{ children: React.ReactNode }> = ({ children }) => {
           </div>
         )}
       </div>
-      <div>{account && children}</div>
+      <div>{account && !notAvailable && children}</div>
     </>
   );
 };

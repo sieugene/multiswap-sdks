@@ -1,28 +1,34 @@
-import { LiFiWidgetDrawer, WidgetConfig } from '@lifi/widget';
-import { useMemo } from 'react';
-import { SwapWidget } from '../widgets/SwapWidget/ui';
+import { useMemo, useState } from 'react';
+import { LifiCustomWidget, RubicWidget } from '../widgets/SwapWidget/ui';
 
+enum WidgetType {
+  NONE = 'NONE',
+  LIFI = 'LIFI',
+  RUBIC = 'RUBIC',
+}
 export const WidgetPage = () => {
-  const widgetConfig: WidgetConfig = useMemo(
-    () => ({
-      integrator: 'Your dApp/company name',
-      containerStyle: {
-        border: `1px solid ${
-          window.matchMedia('(prefers-color-scheme: dark)').matches
-            ? 'rgb(66, 66, 66)'
-            : 'rgb(234, 234, 234)'
-        }`,
-        borderRadius: '16px',
-        display: 'flex',
-      },
-    }),
-    []
-  );
-
+  const [widget, setWidget] = useState<WidgetType>(WidgetType.NONE);
+  const ChosedWidget = useMemo(() => {
+    switch (widget) {
+      case WidgetType.NONE:
+        return <div>widget not selected</div>;
+      case WidgetType.LIFI:
+        return <LifiCustomWidget />;
+      case WidgetType.RUBIC:
+        return <RubicWidget />;
+    }
+  }, [widget]);
   return (
     <>
-      <SwapWidget />
-      <LiFiWidgetDrawer config={widgetConfig} />
+      <select
+        value={widget}
+        onChange={({ target }) => setWidget(target.value as WidgetType)}
+      >
+        {Object.values(WidgetType).map((v) => (
+          <option value={v}>{v}</option>
+        ))}
+      </select>
+      {ChosedWidget}
     </>
   );
 };
