@@ -1,11 +1,7 @@
 {
   "compilerOptions": {
     "target": "es5",
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "esnext"
-    ],
+    "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
@@ -20,7 +16,13 @@
     "noEmit": true,
     "jsx": "react-jsx"
   },
-  "include": [
-    "src"
-  ]
+  "paths": {
+    "stream": ["./node_modules/stream-browserify"],
+    "assert": ["./node_modules/assert"],
+    "https": ["./node_modules/https-browserify"],
+    "os": ["./node_modules/os-browserify"],
+    "http": ["./node_modules/stream-http"],
+    "crypto": ["./node_modules/crypto-browserify"]
+  },
+  "include": ["src"]
 }

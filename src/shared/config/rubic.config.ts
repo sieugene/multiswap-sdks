@@ -1,20 +1,21 @@
 import { JsonRpcSigner } from '@ethersproject/providers';
 import { BSC, ChainId, Polygon } from '@usedapp/core';
 import SDK, { BLOCKCHAIN_NAME, Configuration } from 'rubic-sdk';
-import { dappConfig } from './dapp.config';
+import { dappConfig, RUBIC_SETTINGS } from './dapp.config';
 
 const defaultConfig: Configuration = {
   rpcProviders: {
-    [BLOCKCHAIN_NAME.BINANCE_SMART_CHAIN]: {
-      mainRpc: dappConfig.readOnlyUrls![BSC.chainId] as string, // BSC RPC
+    [RUBIC_SETTINGS.from.name]: {
+      mainRpc: dappConfig.readOnlyUrls![RUBIC_SETTINGS.from.chainId] as string, // BSC RPC
     },
-    [BLOCKCHAIN_NAME.POLYGON]: {
-      mainRpc: dappConfig.readOnlyUrls![Polygon.chainId] as string, // Polygon RPC
+    [RUBIC_SETTINGS.to.name]: {
+      mainRpc: dappConfig.readOnlyUrls![RUBIC_SETTINGS.to.chainId] as string, // Polygon RPC
     },
   },
 };
 
 class RubicSdk {
+  public sdk: SDK | null = null;
   public async init(
     provider: JsonRpcSigner,
     account: string,
@@ -30,5 +31,31 @@ class RubicSdk {
         chainId,
       },
     });
+    this.sdk = sdk;
+  }
+
+  public async swap(amount: string) {
+    this.validate();
+    const fromToken = {
+      blockchain: RUBIC_SETTINGS.from.name,
+      address: RUBIC_SETTINGS.tokenFrom,
+    };
+    const toToken = {
+      blockchain: RUBIC_SETTINGS.to.name,
+      address: RUBIC_SETTINGS.tokenTo,
+    };
+    // calculated trades
+    const trades = await this.sdk!.crossChain.calculateTrade(
+      fromToken,
+      amount,
+      toToken
+    );
+    const bestTrade = trades[0];
+  }
+
+  private validate() {
+    if (!this.sdk) {
+      throw new Error('Sdk not inited!');
+    }
   }
 }

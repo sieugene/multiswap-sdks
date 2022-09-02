@@ -3,10 +3,7 @@ import { LiFiWidgetDrawer, WidgetConfig } from '@lifi/widget';
 import { useEthers } from '@usedapp/core';
 import { formatEther, parseEther } from 'ethers/lib/utils';
 import { useMemo, useState } from 'react';
-import {
-  FROM_CHAINID,
-  TO_CHAINID,
-} from '../../../../shared/config/dapp.config';
+import { LIFI_SETTINGS } from '../../../../shared/config/dapp.config';
 import { LIFI_CONFIG } from '../../../../shared/config/lifi.config';
 import { useBalance } from '../../../../shared/hooks/useBalance';
 
@@ -14,14 +11,14 @@ const LifiCustomWidget = () => {
   const { library, account } = useEthers();
   const [amount, setAmount] = useState('0');
   const [tokens] = useState({
-    from: '0x0000000000000000000000000000000000000000', // ETH
-    to: '0xa6fa4fb5f76172d178d61b04b0ecd319c5d1c0aa', // WETH
+    from: LIFI_SETTINGS.tokenFrom, // ETH
+    to: LIFI_SETTINGS.tokenTo, // WETH
   });
   const fromBalance = useBalance(tokens.from);
   const toBalance = useBalance(tokens.to);
 
-  const fromChain = FROM_CHAINID;
-  const toChain = TO_CHAINID;
+  const fromChain = LIFI_SETTINGS.from;
+  const toChain = LIFI_SETTINGS.to;
 
   const make = async () => {
     const parsedAmount = parseEther(amount)?.toString();

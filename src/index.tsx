@@ -1,3 +1,4 @@
+import './polyfills';
 import { DAppProvider } from '@usedapp/core';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
