@@ -1,6 +1,7 @@
-import { JsonRpcSigner } from '@ethersproject/providers';
-import { BSC, ChainId, Polygon } from '@usedapp/core';
-import SDK, { BLOCKCHAIN_NAME, Configuration } from 'rubic-sdk';
+import { ChainId } from '@usedapp/core';
+import SDK, { Configuration } from 'rubic-sdk';
+import { WrappedCrossChainTrade } from 'rubic-sdk/lib/features/cross-chain/providers/common/models/wrapped-cross-chain-trade';
+import Web3 from 'web3';
 import { dappConfig, RUBIC_SETTINGS } from './dapp.config';
 
 const defaultConfig: Configuration = {
@@ -14,18 +15,13 @@ const defaultConfig: Configuration = {
   },
 };
 
-class RubicSdk {
+export class RubicSdk {
   public sdk: SDK | null = null;
-  public async init(
-    provider: JsonRpcSigner,
-    account: string,
-    chainId: ChainId
-  ) {
+  public async init(provider: Web3, account: string, chainId: ChainId) {
     const sdk = await SDK.createSDK(defaultConfig);
     await sdk.updateConfiguration({
       ...defaultConfig,
       walletProvider: {
-        // @ts-ignore
         core: provider,
         address: account,
         chainId,
@@ -34,23 +30,35 @@ class RubicSdk {
     this.sdk = sdk;
   }
 
-  public async swap(amount: string) {
-    this.validate();
-    const fromToken = {
-      blockchain: RUBIC_SETTINGS.from.name,
-      address: RUBIC_SETTINGS.tokenFrom,
-    };
-    const toToken = {
-      blockchain: RUBIC_SETTINGS.to.name,
-      address: RUBIC_SETTINGS.tokenTo,
-    };
-    // calculated trades
-    const trades = await this.sdk!.crossChain.calculateTrade(
-      fromToken,
-      amount,
-      toToken
-    );
-    const bestTrade = trades[0];
+  public async findTrade(amount: string) {
+    try {
+      this.validate();
+      const fromToken = {
+        blockchain: RUBIC_SETTINGS.from.name,
+        address: RUBIC_SETTINGS.tokenFrom,
+      };
+      const toToken = {
+        blockchain: RUBIC_SETTINGS.to.name,
+        address: RUBIC_SETTINGS.tokenTo,
+      };
+      // calculated trades
+      const trades = await this.sdk!.crossChain.calculateTrade(
+        fromToken,
+        amount,
+        toToken
+      );
+      return trades[0];
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  public async swap(trade: WrappedCrossChainTrade | undefined) {
+    try {
+      const transactionHash = await trade?.trade?.swap();
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   private validate() {
